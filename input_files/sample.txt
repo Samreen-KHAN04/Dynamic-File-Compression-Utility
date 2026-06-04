@@ -1,0 +1,8 @@
+Huffman coding is a lossless data compression algorithm.
+
+This project demonstrates:
+Trees
+Heaps
+Greedy Algorithms
+Hash Maps
+File Handling
