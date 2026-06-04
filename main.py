@@ -1,11 +1,12 @@
-from src.utils import read_text_file
 
+import sys
+
+from src.utils import read_text_file
 from src.huffman import (
     build_frequency_table,
     build_heap,
     build_huffman_tree,
-    generate_codes,
-    print_tree
+    generate_codes
 )
 
 from src.compressor import (
@@ -17,71 +18,28 @@ from src.decompressor import (
     decompress_file
 )
 
+INPUT_FILE = "input_files/sample.txt"
 
-INPUT_FILE = (
-    "input_files/sample.txt"
-)
+COMPRESSED_FILE = "compressed_files/compressed.huff"
 
-COMPRESSED_FILE = (
-    "compressed_files/compressed.huff"
-)
+CODEBOOK_FILE = "compressed_files/codes.json"
 
-CODEBOOK_FILE = (
-    "compressed_files/codes.json"
-)
-
-DECOMPRESSED_FILE = (
-    "decompressed_files/decompressed.txt"
-)
+DECOMPRESSED_FILE = "decompressed_files/decompressed.txt"
 
 
-def main():
+def compress_command():
 
-    print("\nReading Input File...")
+    print("\nCompressing File...\n")
 
-    text = read_text_file(
-        INPUT_FILE
-    )
+    text = read_text_file(INPUT_FILE)
 
-    frequency_table = (
-        build_frequency_table(text)
-    )
+    frequency_table = build_frequency_table(text)
 
-    heap = build_heap(
-        frequency_table
-    )
+    heap = build_heap(frequency_table)
 
-    root = build_huffman_tree(
-        heap
-    )
+    root = build_huffman_tree(heap)
 
-    print("\nHUFFMAN TREE\n")
-    print_tree(root)
-
-    codes = generate_codes(
-        root
-    )
-
-    print("\nHUFFMAN CODES\n")
-    print("-" * 50)
-
-    for char, code in sorted(
-            codes.items()):
-
-        if char == "\n":
-            display = "\\n"
-
-        elif char == " ":
-            display = "SPACE"
-
-        else:
-            display = char
-
-        print(
-            f"{display:<10} -> {code}"
-        )
-
-    print("\nCompressing File...")
+    codes = generate_codes(root)
 
     compress_file(
         text,
@@ -90,17 +48,18 @@ def main():
         CODEBOOK_FILE
     )
 
-    print(
-        f"Compressed File : "
-        f"{COMPRESSED_FILE}"
-    )
+    print("Compression Successful")
+    print(f"Output : {COMPRESSED_FILE}")
+    print(f"Codebook : {CODEBOOK_FILE}")
 
-    print(
-        f"Codebook Saved  : "
-        f"{CODEBOOK_FILE}"
-    )
 
-    print("\nDecompressing File...")
+def decompress_command():
+
+    print("\nDecompressing File...\n")
+
+    original_text = read_text_file(
+        INPUT_FILE
+    )
 
     decoded_text = decompress_file(
         COMPRESSED_FILE,
@@ -108,52 +67,64 @@ def main():
         DECOMPRESSED_FILE
     )
 
-    print(
-        f"Decompressed File : "
-        f"{DECOMPRESSED_FILE}"
-    )
+    print("Decompression Successful")
+    print(f"Output : {DECOMPRESSED_FILE}")
 
-    print("\nIntegrity Check")
-
-    if text == decoded_text:
-
-        print(
-            "SUCCESS: Files Match"
-        )
-
+    if original_text == decoded_text:
+        print("Integrity Check : PASSED")
     else:
+        print("Integrity Check : FAILED")
+        
+def stats_command():
 
-        print(
-            "ERROR: Files Do Not Match"
-        )
+    print("\nCompression Statistics\n")
 
-    (
-        original_size,
-        compressed_size,
-        ratio
-    ) = compression_ratio(
+    original_size, compressed_size, ratio = compression_ratio(
         INPUT_FILE,
         COMPRESSED_FILE
     )
 
-    print("\nCompression Report")
+    saved = original_size - compressed_size
+
     print("-" * 50)
 
-    print(
-        f"Original Size   : "
-        f"{original_size} bytes"
-    )
+    print(f"Original Size   : {original_size} bytes")
+    print(f"Compressed Size : {compressed_size} bytes")
+    print(f"Space Saved     : {saved} bytes")
+    print(f"Compression Ratio : {ratio:.2f}%")
 
-    print(
-        f"Compressed Size : "
-        f"{compressed_size} bytes"
-    )
+    print("-" * 50)
 
-    print(
-        f"Compression Ratio : "
-        f"{ratio:.2f}%"
-    )
+
+def show_help():
+
+    print("""
+Usage:
+
+python main.py compress
+python main.py decompress
+python main.py stats
+""")
 
 
 if __name__ == "__main__":
-    main()
+
+    if len(sys.argv) < 2:
+        show_help()
+
+    else:
+
+        command = sys.argv[1].lower()
+
+        if command == "compress":
+            compress_command()
+
+        elif command == "decompress":
+            decompress_command()
+
+        elif command == "stats":
+            stats_command()
+
+        else:
+            show_help()
+
