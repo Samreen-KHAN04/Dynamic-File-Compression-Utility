@@ -42,6 +42,8 @@ def build_huffman_tree(heap):
         heapq.heappush(heap, merged)
 
     return heap[0]
+
+
 def generate_codes(root):
 
     codes = {}
@@ -61,6 +63,8 @@ def generate_codes(root):
     traverse(root, "")
 
     return codes
+
+
 def print_tree(node, level=0):
 
     if node is None:
@@ -69,36 +73,8 @@ def print_tree(node, level=0):
     print_tree(node.right, level + 1)
 
     if node.char is not None:
-        print("    " * level + f"{node.char}:{node.freq}")
+        print("    " * level + f"{repr(node.char)}:{node.freq}")
     else:
         print("    " * level + f"*:{node.freq}")
 
     print_tree(node.left, level + 1)
-def encode_text(text, codes):
-
-    encoded_text = ""
-
-    for char in text:
-        encoded_text += codes[char]
-
-    return encoded_text
-
-
-def decode_text(encoded_text, root):
-
-    decoded_text = ""
-
-    current = root
-
-    for bit in encoded_text:
-
-        if bit == "0":
-            current = current.left
-        else:
-            current = current.right
-
-        if current.char is not None:
-            decoded_text += current.char
-            current = root
-
-    return decoded_text

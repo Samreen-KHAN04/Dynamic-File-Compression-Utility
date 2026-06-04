@@ -5,8 +5,7 @@ from src.huffman import (
     build_heap,
     build_huffman_tree,
     generate_codes,
-    print_tree,
-    encode_text
+    print_tree
 )
 
 from src.compressor import (
@@ -19,10 +18,16 @@ from src.decompressor import (
 )
 
 
-INPUT_FILE = "input_files/sample.txt"
+INPUT_FILE = (
+    "input_files/sample.txt"
+)
 
 COMPRESSED_FILE = (
-    "compressed_files/compressed.bin"
+    "compressed_files/compressed.huff"
+)
+
+CODEBOOK_FILE = (
+    "compressed_files/codes.json"
 )
 
 DECOMPRESSED_FILE = (
@@ -50,12 +55,14 @@ def main():
         heap
     )
 
+    print("\nHUFFMAN TREE\n")
+    print_tree(root)
+
     codes = generate_codes(
         root
     )
 
-    print("\nGenerated Huffman Codes")
-
+    print("\nHUFFMAN CODES\n")
     print("-" * 50)
 
     for char, code in sorted(
@@ -76,42 +83,48 @@ def main():
 
     print("\nCompressing File...")
 
-    encoded_text = compress_file(
+    compress_file(
         text,
         codes,
-        COMPRESSED_FILE
+        COMPRESSED_FILE,
+        CODEBOOK_FILE
     )
 
     print(
-        f"Compressed file saved:"
-        f" {COMPRESSED_FILE}"
+        f"Compressed File : "
+        f"{COMPRESSED_FILE}"
+    )
+
+    print(
+        f"Codebook Saved  : "
+        f"{CODEBOOK_FILE}"
     )
 
     print("\nDecompressing File...")
 
     decoded_text = decompress_file(
-        encoded_text,
-        root,
+        COMPRESSED_FILE,
+        CODEBOOK_FILE,
         DECOMPRESSED_FILE
     )
 
     print(
-        f"Decompressed file saved:"
-        f" {DECOMPRESSED_FILE}"
+        f"Decompressed File : "
+        f"{DECOMPRESSED_FILE}"
     )
 
-    print("\nChecking Integrity")
+    print("\nIntegrity Check")
 
     if text == decoded_text:
+
         print(
-            "SUCCESS:"
-            " Original and Decompressed"
-            " files match."
+            "SUCCESS: Files Match"
         )
+
     else:
+
         print(
-            "ERROR:"
-            " Files do not match."
+            "ERROR: Files Do Not Match"
         )
 
     (
@@ -124,7 +137,6 @@ def main():
     )
 
     print("\nCompression Report")
-
     print("-" * 50)
 
     print(
@@ -138,8 +150,8 @@ def main():
     )
 
     print(
-        f"Compression Ratio:"
-        f" {ratio:.2f}%"
+        f"Compression Ratio : "
+        f"{ratio:.2f}%"
     )
 
 
